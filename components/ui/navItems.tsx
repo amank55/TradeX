@@ -19,7 +19,7 @@ const NavItems = () => {
           <Link
             href={href}
             className={`
-              hover:text-yellow-500 transition
+              hover:text-green-400 transition
               ${isActive(href) ? "text-gray-100" : ""}
             `}
           >
