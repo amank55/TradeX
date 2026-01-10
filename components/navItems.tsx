@@ -25,6 +25,7 @@ const NavItems = () => {
           >
             {label}
           </Link>
+          
         </li>
       ))}
     </ul>
