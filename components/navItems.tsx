@@ -20,7 +20,7 @@ const NavItems = () => {
             href={href}
             className={`
               hover:text-green-400 transition
-              ${isActive(href) ? "text-gray-100" : ""}
+              ${isActive(href) ? "text-gray-500" : ""}
             `}
           >
             {label}
