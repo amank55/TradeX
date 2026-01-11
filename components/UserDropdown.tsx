@@ -42,7 +42,7 @@ const UserDropdown = () => {
           </Avatar>
 
           <div className="hidden md:flex flex-col items-start">
-            <span className="text-base font-medium text-gray-400">
+        <span className="text-base font-medium text-gray-400 group-hover:text-green-500">
               {user.name}
             </span>
           </div>
