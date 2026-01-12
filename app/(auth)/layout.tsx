@@ -1,7 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import {headers} from "next/headers";
-import {redirect} from "next/navigation";
 
 const Layout = async ({ children }: { children : React.ReactNode }) => {
 
@@ -32,8 +30,6 @@ const Layout = async ({ children }: { children : React.ReactNode }) => {
                         </div>
                     </div>
                 </div>
-
-                {/* Option A: Fit completely (no cropping) */}
                 <div className="flex-1 min-h-[420px] lg:min-h-[700px] rounded-xl overflow-hidden">
                     <Image
                         src="/assets/images/dashboard.png"
