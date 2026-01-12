@@ -3,7 +3,7 @@
 import { Button } from "@/components/button";
 import InputField from "@/components/forms/InputField";
 import SelectField from "@/components/forms/SelectField";
-import { INVESTMENT_GOALS } from "@/lib/constants";
+import { INVESTMENT_GOALS, PREFERRED_INDUSTRIES, RISK_TOLERANCE_OPTIONS } from "@/lib/constants";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 const SignUp = () => {
@@ -17,9 +17,10 @@ const SignUp = () => {
          fullName: "",
          email: "",
          password: "",
+         investmentGoals: "", 
         country: "India",
-        riskTolerance: "medium",
-        preferredIndustry:"technology",
+        riskTolerance: "Medium",  
+        preferredIndustry: "Technology", 
         },
         mode: "onBlur"
   });
@@ -87,6 +88,24 @@ const SignUp = () => {
       options={INVESTMENT_GOALS}
       control={control}
       error={errors.investmentGoals}
+      required
+      />
+      <SelectField
+      name="riskTolerance"
+      label="Risk Tolerance"
+      placeholder="Enter Your Risk Tolerance"
+      options={RISK_TOLERANCE_OPTIONS}
+      control={control}
+      error={errors.riskTolerance}
+      required
+      />
+      <SelectField
+      name="preferredIndustry"
+      label="Preferred Industry"
+      placeholder="Enter Your Preferred Industry"
+      options={PREFERRED_INDUSTRIES}
+      control={control}
+      error={errors.preferredIndustry}
       required
       />
         <Button type="submit" disabled={isSubmitting} className="green-btn w-full mt-5">

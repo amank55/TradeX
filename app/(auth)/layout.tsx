@@ -14,7 +14,7 @@ const Layout = async ({ children }: { children : React.ReactNode }) => {
             </section>
 
             <section className="auth-right-section">
-                <div className="z-10 relative lg:mt-4 lg:mb-16">
+                <div className="z-10 relative lg:mt-0 lg:mb-3 w-full">
                     <blockquote className="auth-blockquote">
                         Signalist turned my watchlist into a winning list. The alerts are spot-on, and I feel more confident making moves in the market
                     </blockquote>
@@ -30,13 +30,13 @@ const Layout = async ({ children }: { children : React.ReactNode }) => {
                         </div>
                     </div>
                 </div>
-                <div className="flex-1 min-h-[420px] lg:min-h-[700px] rounded-xl overflow-hidden">
+                <div className="w-full flex-1 rounded-xl overflow-hidden">
                     <Image
                         src="/assets/images/dashboard.png"
                         alt="Dashboard Preview"
                         width={1440}
                         height={1150}
-                        className="w-full h-auto block"
+                        className="w-full h-full object-cover object-top"
                         priority
                     />
                 </div>
