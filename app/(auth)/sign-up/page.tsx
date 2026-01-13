@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/button";
+import CountrySelectField from "@/components/forms/CountrySelectField";
 import InputField from "@/components/forms/InputField";
 import SelectField from "@/components/forms/SelectField";
 import { INVESTMENT_GOALS, PREFERRED_INDUSTRIES, RISK_TOLERANCE_OPTIONS } from "@/lib/constants";
@@ -90,6 +91,7 @@ const SignUp = () => {
       error={errors.investmentGoals}
       required
       />
+      <CountrySelectField/>
       <SelectField
       name="riskTolerance"
       label="Risk Tolerance"
