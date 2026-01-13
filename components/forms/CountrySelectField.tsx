@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import countryList from 'react-select-country-list';
+import * as flags from 'country-flag-icons/react/3x2';
 
 type CountrySelectProps = {
     name: string;
@@ -42,13 +43,13 @@ const CountrySelect = ({
     // Get country options with flags
     const countries = countryList().getData();
 
-    // Helper function to get flag emoji
-    const getFlagEmoji = (countryCode: string) => {
-        const codePoints = countryCode
-            .toUpperCase()
-            .split('')
-            .map((char) => 127397 + char.charCodeAt(0));
-        return String.fromCodePoint(...codePoints);
+    const FlagIcon = ({ countryCode }: { countryCode: string }) => {
+        const code = countryCode.toUpperCase();
+        const Flag = (flags as any)[code];
+        
+        if (!Flag) return <span className="w-5 h-4 inline-block">{code}</span>;
+        
+        return <Flag className="w-5 h-4 inline-block rounded-sm" />;
     };
 
     return (
@@ -62,7 +63,7 @@ const CountrySelect = ({
                 >
                     {value ? (
                         <span className='flex items-center gap-2'>
-              <span>{getFlagEmoji(value)}</span>
+              <FlagIcon countryCode={value} />
               <span>{countries.find((c) => c.value === value)?.label}</span>
             </span>
                     ) : (
@@ -101,10 +102,10 @@ const CountrySelect = ({
                                             value === country.value ? 'opacity-100' : 'opacity-0'
                                         )}
                                     />
-                                    <span className='flex items-center gap-2'>
-                    <span>{getFlagEmoji(country.value)}</span>
-                    <span>{country.label}</span>
-                  </span>
+                                                                        <span className='flex items-center gap-2'>
+                                        <FlagIcon countryCode={country.value} />
+                                        <span>{country.label}</span>
+                                    </span>
                                 </CommandItem>
                             ))}
                         </CommandGroup>
