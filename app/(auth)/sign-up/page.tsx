@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/button";
 import {CountrySelectField}from "@/components/forms/CountrySelectField";
+import FooterLink from "@/components/forms/FooterLink";
 import InputField from "@/components/forms/InputField";
 import SelectField from "@/components/forms/SelectField";
 import { INVESTMENT_GOALS, PREFERRED_INDUSTRIES, RISK_TOLERANCE_OPTIONS } from "@/lib/constants";
@@ -118,6 +119,7 @@ const SignUp = () => {
         <Button type="submit" disabled={isSubmitting} className="green-btn w-full mt-5">
         {isSubmitting? 'create Account' : 'Start Your Free Journey'}
        </Button>
+       <FooterLink text="Already have an Account" linkText="Sign-In" href="/sign-in"/>
 
       </form> 
     </>

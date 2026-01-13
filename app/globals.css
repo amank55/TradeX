@@ -212,7 +212,7 @@
     font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", var(--font-geist-sans), sans-serif;
   }
   .footer-link {
-    @apply text-gray-400 font-medium hover:text-yellow-400 hover:underline transition-colors;
+    @apply text-gray-300 font-medium hover:text-green-500 hover:underline transition-colors;
   }
   .search-text {
     @apply cursor-pointer hover:text-yellow-500;
