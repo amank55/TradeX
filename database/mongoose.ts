@@ -1,21 +1,21 @@
-import { error } from "console";
+
 import mongoose from "mongoose"
 const MONGODB_URI = process.env.MONGODB_URI;
 declare global {
-    var mongoosecache :{
+    var mongooseCache :{
         conn: typeof mongoose | null;
         promise: Promise<typeof mongoose>  | null;
 
     }
 }
- let cached = global.mongoosecache;
+ let cached = global.mongooseCache;
  if (!cached){
-      cached = global.mongoosecache = {
+      cached = global.mongooseCache = {
         conn:null,
         promise:null
       }
  }
- export const connectToDAtabase = async ()=>{
+ export const connectToDatabase = async ()=>{
     if(!MONGODB_URI) throw new Error("MONGODB_URI is not defined");
     if(cached.conn) return cached.conn;
      if(!cached.promise) {
