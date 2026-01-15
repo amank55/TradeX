@@ -1,6 +1,6 @@
 import { Inngest} from "inngest";
 import {serve} from "inngest/next";
-import { helloWorld } from "./functions";
+
 
 export const inngest = new Inngest({
     id: 'signalist',
