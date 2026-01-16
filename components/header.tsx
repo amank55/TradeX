@@ -3,7 +3,7 @@ import Link from "next/link"
 import NavItems from "./navItems"
 import UserDropdown from "./UserDropdown"
 
-const Header = () => {
+const Header = async ({ user }: { user: User })=> {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full">
       <div className="container header-wrapper flex items-center px-4 py-3">
@@ -23,7 +23,7 @@ const Header = () => {
           <NavItems />
         </nav>
         <div className="flex-none ml-4">
-          <UserDropdown />
+          <UserDropdown user={user} />
         </div>
       </div>
     </header>

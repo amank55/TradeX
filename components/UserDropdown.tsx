@@ -17,13 +17,9 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.share
 import { LogOut } from "lucide-react";
 import NavItems from "./navItems";
 
-const UserDropdown = () => {
+const UserDropdown = ({ user }: { user: User })=> {
   const router: AppRouterInstance = useRouter();
 
-  const user = {
-    name: "Aman",
-    email: "contact@singnalist.com",
-  };
 
   const handleSignOut = async (): Promise<void> => {
     router.push("/sign-in");
