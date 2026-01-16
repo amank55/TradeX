@@ -52,7 +52,7 @@ const UserDropdown = ({ user }: { user: User })=> {
         <DropdownMenuLabel>
             <div className="flex relative items-center gap-3 py-2">
             <Avatar className="h-8 w-8">
-            <AvatarImage src="cat.png" />
+            <AvatarImage src= "cat.png"/>
             <AvatarFallback className="bg-yellow-500 text-yellow-900 text-sm">
               {user.name[0]}
             </AvatarFallback>
