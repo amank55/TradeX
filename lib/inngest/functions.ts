@@ -1,6 +1,9 @@
 import {inngest} from "@/lib/inngest/client";
 import { PERSONALIZED_WELCOME_EMAIL_PROMPT } from "./prompts";
 import { sendWelcomeEmail } from "../nodemailer";
+import { step } from "inngest";
+import { getAllUsersForNewsEmail } from "../actions/users.actions";
+import { success } from "better-auth";
 
 export const sendSignUpEmail = inngest.createFunction(
     { id: 'sign-up-email' },
@@ -43,3 +46,16 @@ export const sendSignUpEmail = inngest.createFunction(
         }
     }
 )
+ export const sendDailyNewsSummary = inngest.createFunction(
+    {id : 'daily-news-summary'},
+    [{event: 'app/send.daily.news'}, {cron: '0 12 * * *'}],
+    async ({step}) => {
+        const users = await step.run('get-all-users', getAllUsersForNewsEmail)
+        if(!users || users.length ===0) return {success : false, message : 'No users Found for news Email'}
+        // step 2 send the personalised news to the users 
+        // step 3 summarize them with the help of the ai present in the inngest
+        // step 4 send the emails to the new users
+    }
+ )
+    
+ 
