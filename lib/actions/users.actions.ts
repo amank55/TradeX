@@ -1,6 +1,6 @@
 "use server"
 import { connectToDatabase } from "@/database/mongoose";
-import { Users } from "lucide-react";
+
 
 export const getAllUsersForNewsEmail = async ()=> {
     try {
