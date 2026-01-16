@@ -21,3 +21,7 @@ export const signUpWithEmail = async ({ email, password, fullName, country, inve
         return { success: false, error: 'Sign up failed' }
     }
 }
+
+export const signOut = async () => {
+    
+}
