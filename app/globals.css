@@ -215,10 +215,10 @@
     @apply text-gray-300 font-medium hover:text-green-500 hover:underline transition-colors;
   }
   .search-text {
-    @apply cursor-pointer hover:text-yellow-500;
+    @apply cursor-pointer hover:text-green-500 transition-colors;
   }
   .search-btn {
-    @apply cursor-pointer px-4 py-2 w-fit flex items-center gap-2 text-sm md:text-base bg-yellow-500 hover:bg-yellow-500 text-black font-medium rounded;
+    @apply cursor-pointer px-4 py-2 w-fit flex items-center gap-2 text-sm md:text-base bg-green-600 hover:bg-green-700 text-white font-medium rounded;
   }
   .search-dialog {
     @apply !bg-gray-800 lg:min-w-[800px] border-gray-600 fixed top-10 left-1/2 -translate-x-1/2 translate-y-10;
@@ -256,240 +256,78 @@
   .nav-list {
     @apply flex flex-col sm:flex-row p-2 gap-3 sm:gap-10 font-medium;
   }
+  
+  .nav-item {
+    @apply text-white hover:text-green-500 transition-colors cursor-pointer;
+  }
+
+  /* Dashboard and Watchlist - White text, green on hover */
+  .watchlist-title {
+    @apply text-xl md:text-2xl font-bold text-white hover:text-green-500 transition-colors;
+  }
+
+  .watchlist-btn {
+    @apply bg-green-600 text-base hover:bg-green-700 text-white w-full rounded h-11 font-semibold cursor-pointer transition-colors;
+  }
+
+  .watchlist-icon-btn {
+    @apply w-fit cursor-pointer hover:bg-transparent! text-white hover:text-green-500 transition-colors;
+  }
+
+  .watchlist-icon-added {
+    @apply !text-green-500 hover:!text-green-600;
+  }
+
+  /* Alert section - Green text */
+  .alert-name {
+    @apply mb-2 text-lg text-green-500 font-semibold hover:text-green-400 transition-colors;
+  }
+
+  .alert-update-btn {
+    @apply text-white rounded-full bg-transparent hover:bg-green-500 hover:text-gray-900 cursor-pointer transition-colors;
+  }
+
+  /* Add alert button */
+  .add-alert {
+    @apply flex text-sm items-center whitespace-nowrap gap-1.5 px-3 w-fit py-2 text-white border border-green-600/50 rounded font-medium bg-transparent hover:bg-green-600 hover:text-white cursor-pointer transition-colors;
+  }
+
+  /* News section - Green CTA */
+  .news-cta {
+    @apply text-sm align-bottom text-white hover:text-green-500 transition-colors;
+  }
+
+  /* Table rows - White text on hover green */
+  .table-row {
+    @apply border-b cursor-pointer text-gray-100 border-gray-600 hover:bg-green-500/10 hover:text-green-400 transition-colors;
+  }
+
+  .table-cell {
+    @apply font-medium text-base text-white;
+  }
+
+  /* Stock details - White text */
   .stock-details-container {
     @apply w-full grid-cols-1 gap-6 xl:grid-cols-3 space-y-6 sm:space-y-8;
   }
-  .watchlist-btn {
-    @apply bg-yellow-500 text-base hover:bg-yellow-500 text-gray-900 w-full rounded h-11 font-semibold cursor-pointer;
+
+  /* Search text link - White, green on hover */
+  .search-text {
+    @apply cursor-pointer text-white hover:text-green-500 transition-colors font-medium;
   }
-  .watchlist-remove {
-    @apply bg-red-500! hover:bg-red-500! text-gray-900!
+
+  /* Footer links - White, green on hover */
+  .footer-link {
+    @apply text-white font-medium hover:text-green-500 hover:underline transition-colors;
   }
-  .watchlist-empty-container {
-    @apply container gap-8 flex-col items-center md:mt-10 p-6 text-center;
-  }
-  .watchlist-empty {
-    @apply flex flex-col items-center justify-center text-center;
-  }
-  .watchlist-star {
-    @apply h-16 w-16 text-gray-500 mb-4;
-  }
+
+  /* Empty watchlist text - White */
   .empty-title {
-    @apply text-xl font-semibold text-gray-400 mb-2;
+    @apply text-xl font-semibold text-white mb-2;
   }
-  .empty-description {
-    @apply text-gray-500 mb-6 max-w-md;
-  }
-  .watchlist-container {
-    @apply flex flex-col-reverse lg:grid lg:grid-cols-3 gap-8;
-  }
-  .watchlist {
-    @apply lg:col-span-2 space-y-8;
-  }
-  .watchlist-alerts {
-    @apply items-start gap-6 h-full flex-col w-full lg:col-span-1;
-  }
-  .watchlist-icon-btn {
-    @apply w-fit cursor-pointer hover:bg-transparent! text-gray-400 hover:text-yellow-500;
-  }
-  .watchlist-icon-added {
-    @apply !text-yellow-500 hover:!text-yellow-600;
-  }
-  .watchlist-icon {
-    @apply w-8 h-8 rounded-full flex items-center justify-center bg-gray-700/50;
-  }
-  .trash-icon {
-    @apply h-4 w-4 text-gray-400 hover:text-red-400;
-  }
-  .star-icon {
-    @apply h-4 w-4;
-  }
-  .watchlist-title {
-    @apply text-xl md:text-2xl font-bold text-gray-100;
-  }
-  .watchlist-table {
-    @apply !relative overflow-hidden !w-full bg-gray-800 border !border-gray-600 !rounded-lg;
-  }
-  .table-header-row {
-    @apply text-gray-400 font-medium bg-gray-700 border-b border-gray-600 hover:bg-gray-700;
-  }
-  .table-header:first-child {
-    @apply pl-4;
-  }
-  .table-row {
-    @apply border-b cursor-pointer text-gray-100 border-gray-600 hover:bg-gray-700/50 transition-colors;
-  }
-  .table-cell {
-    @apply font-medium text-base
-  }
-  .add-alert {
-    @apply flex text-sm items-center whitespace-nowrap gap-1.5 px-3 w-fit py-2 text-yellow-600 border border-yellow-600/20 rounded font-medium bg-transparent hover:bg-transparent cursor-pointer transition-colors;
-  }
-  .watchlist-news {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
-  }
-  .news-item {
-    @apply bg-gray-800 rounded-lg border w-full border-gray-600  p-4 duration-200 hover:border-gray-600 cursor-pointer;
-  }
-  .news-tag {
-    @apply inline-block w-fit px-2 py-1 mb-5 rounded bg-gray-600/60 text-green-500 text-sm font-mono font-medium;
-  }
-  .news-title {
-    @apply text-lg  font-semibold text-gray-100 leading-tight mb-3 line-clamp-2;
-  }
-  .news-meta {
-    @apply flex items-center text-sm text-gray-500 mb-1;
-  }
-  .news-summary {
-    @apply text-gray-400 flex-1 text-base leading-relaxed mb-3 line-clamp-3;
-  }
-  .news-cta {
-    @apply text-sm align-bottom text-yellow-500 hover:text-gray-400;
-  }
-  .alert-dialog {
-    @apply bg-gray-800 border-gray-600 text-gray-400 max-w-md;
-  }
-  .alert-title {
-    @apply text-xl font-semibold text-gray-100;
-  }
-  .alert-list {
-    @apply overflow-y-auto w-full max-h-[911px] rounded-lg flex border border-gray-600 flex-col gap-4 bg-gray-800 p-3 flex-1;
-  }
-  .alert-empty {
-    @apply px-6 py-8 text-center text-gray-500/50;
-  }
-  .alert-item {
-    @apply p-4 rounded-lg bg-gray-700 border border-gray-600;
-  }
-  .alert-name {
-    @apply mb-2 text-lg text-yellow-500 font-semibold;
-  }
-  .alert-details {
-    @apply flex border-b pb-3 items-center justify-between gap-3 mb-2;
-  }
-  .alert-company {
-    @apply text-gray-400 text-base;
-  }
-  .alert-price {
-    @apply text-gray-100 font-bold;
-  }
-  .alert-actions {
-    @apply flex items-end justify-between;
-  }
-  .alert-update-btn {
-    @apply text-gray-400 rounded-full bg-transparent hover:bg-green-500/15 cursor-pointer;
-  }
-  .alert-delete-btn {
-    @apply text-gray-400 rounded-full hover:bg-red-600/15 bg-transparent cursor-pointer transition-colors;
-  }
-}
 
-/* Market News Component Styles */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-/* TradingView Advanced Chart Widget Styles */
-.tradingview-widget-container {
-  position: relative;
-  background-color: #141414 !important;
-  border-radius: 8px !important;
-  overflow: hidden !important;
-}
-
-.tv-embed-widget-wrapper__body {
-  background-color: #141414 !important;
-}
-
-.tradingview-widget-container__widget {
-  background-color: #141414 !important;
-  height: 100% !important;
-
-}
-
-.widget-stock-heatmap-container .screenerMapWrapper-BBVfGP0b {
-  overflow: hidden !important;
-  background: #141414 !important;
-  background-color: #141414 !important;
-}
-
-.canvasContainer-tyaAU8aH {
-  background: #141414 !important;
-  background-color: #141414 !important;
-}
-
-.tv-site-widget--bg_none {
-  background-color: transparent !important;
-}
-
-.tradingview-widget-copyright {
-  font-size: 11px;
-  color: #9ca3af;
-  text-align: center;
-  padding: 4px 0;
-  background-color: transparent;
-}
-
-.tradingview-widget-copyright a {
-  color: #60a5fa;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.tradingview-widget-copyright a:hover {
-  color: #93c5fd;
-  text-decoration: underline;
-}
-
-.tv-embed-widget-wrapper .tv-embed-widget-wrapper__body {
-  background: #141414 !important;
-  background-color: #141414 !important;
-}
-
-.tradingview-widget-container iframe {
-  background-color: #141414 !important;
-  width: 100% !important;
-}
-
-.custom-chart.tradingview-widget-container iframe {
-  border: 1px solid #30333A;
-  border-radius: 8px !important;
-  overflow: hidden !important;
-}
-
-/* Custom scrollbar that shows on hover */
-.scrollbar-hide-default {
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-.scrollbar-hide-default::-webkit-scrollbar {
-  width: 8px;
-}
-
-.scrollbar-hide-default::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-hide-default::-webkit-scrollbar-thumb {
-  background-color: transparent;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-}
-
-.scrollbar-hide-default:hover {
-  scrollbar-color: #30333A transparent;
-}
-
-.scrollbar-hide-default:hover::-webkit-scrollbar-thumb {
-  background-color: #30333A;
-}
-
-.scrollbar-hide-default::-webkit-scrollbar-thumb:hover {
-  background-color: #9095A1;
+  /* Nav indicators - Green */
+  .nav-indicator {
+    @apply text-green-500 font-bold;
+  }
 }
