@@ -191,7 +191,7 @@ export default function SearchCommand({ renderAs = 'button', label = 'Add stock'
                   return (
                     <li key={stock.symbol}>
                       <Link
-                        href={`/stocks/symbols/${stock.symbol}`}
+                        href={`/stocks/${stock.symbol}`}
                         className="group flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-gray-800 transition-colors border border-transparent hover:border-green-500/30"
                       >
                         <TrendingUp className="h-4 w-4 text-green-500 opacity-60 group-hover:opacity-100" />
