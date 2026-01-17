@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { CommandDialog, CommandEmpty, CommandInput, CommandList } from "@/components/ui/command"
 import { Button } from "./button";
-import { Loader2, TrendingUp, X } from "lucide-react";
+import { Loader2, TrendingUp, X, Star } from "lucide-react";
 import Link from "next/link";
 import { searchStocks } from "@/lib/actions/finnhub.actions";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -13,6 +13,10 @@ export default function SearchCommand({ renderAs = 'button', label = 'Add stock'
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(false)
   const [stocks, setStocks] = useState<StockWithWatchlistStatus[]>(initialStocks);
+  const [watchlistStocks, setWatchlistStocks] = useState<Set<string>>(
+    new Set(initialStocks.filter(s => s.isInWatchlist).map(s => s.symbol))
+  );
+  const [addingToWatchlist, setAddingToWatchlist] = useState<string | null>(null);
 
   const isSearchMode = !!searchTerm.trim();
   const displayStocks = isSearchMode ? stocks : stocks?.slice(0, 10);
@@ -59,12 +63,73 @@ export default function SearchCommand({ renderAs = 'button', label = 'Add stock'
     setStocks(initialStocks);
   }
 
+  const toggleWatchlist = async (e: React.MouseEvent, symbol: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setAddingToWatchlist(symbol);
+    
+    try {
+      // Check current state BEFORE toggling
+      const isCurrentlyInWatchlist = watchlistStocks.has(symbol);
+      const action = isCurrentlyInWatchlist ? 'remove' : 'add';
+      
+      // Toggle the UI immediately
+      setWatchlistStocks(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(symbol)) {
+          newSet.delete(symbol);
+        } else {
+          newSet.add(symbol);
+        }
+        return newSet;
+      });
+
+      // Send to API with correct action
+      const response = await fetch('/api/watchlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          symbol, 
+          action
+        }),
+      });
+
+      if (!response.ok) {
+        // Revert on error
+        setWatchlistStocks(prev => {
+          const newSet = new Set(prev);
+          if (newSet.has(symbol)) {
+            newSet.delete(symbol);
+          } else {
+            newSet.add(symbol);
+          }
+          return newSet;
+        });
+      }
+    } catch (error) {
+      console.error('Error updating watchlist:', error);
+      // Revert on error
+      setWatchlistStocks(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(symbol)) {
+          newSet.delete(symbol);
+        } else {
+          newSet.add(symbol);
+        }
+        return newSet;
+      });
+    } finally {
+      setAddingToWatchlist(null);
+    }
+  }
+
   return (
     <>
       {renderAs === 'text' ? (
         <span 
           onClick={() => setOpen(true)} 
-          className="cursor-pointer text-green-500 hover:text-green-400 font-medium transition-colors"
+          className="text-white hover:text-green-500 transition-colors cursor-pointer font-medium"
         >
           {label}
         </span>
@@ -119,32 +184,48 @@ export default function SearchCommand({ renderAs = 'button', label = 'Add stock'
               </div>
 
               <ul className="space-y-1">
-                {displayStocks?.map((stock) => (
-                  <li key={stock.symbol}>
-                    <Link
-                      href={`/stocks/${stock.symbol}`}
-                      onClick={handleSelectStock}
-                      className="group flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-gray-800 transition-colors border border-transparent hover:border-green-500/30"
-                    >
-                      <TrendingUp className="h-4 w-4 text-green-500 opacity-60 group-hover:opacity-100" />
-                      
-                      <div className="flex-1">
-                        <div className="font-semibold text-white group-hover:text-green-400 transition-colors">
-                          {stock.name}
-                        </div>
-                        <div className="text-xs text-gray-500 group-hover:text-gray-400">
-                          {stock.symbol} • {stock.exchange} • {stock.type}
-                        </div>
-                      </div>
+                {displayStocks?.map((stock) => {
+                  const isInWatchlist = watchlistStocks.has(stock.symbol);
+                  const isLoading = addingToWatchlist === stock.symbol;
 
-                      <div className="ml-auto">
-                        <span className="inline-block rounded-full bg-green-500/20 px-2.5 py-1 text-xs font-bold text-green-400 border border-green-500/40">
-                          {stock.symbol}
-                        </span>
-                      </div>
-                    </Link>
-                  </li>
-                ))}
+                  return (
+                    <li key={stock.symbol}>
+                      <Link
+                        href={`/stocks/${stock.symbol}`}
+                        onClick={handleSelectStock}
+                        className="group flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-gray-800 transition-colors border border-transparent hover:border-green-500/30"
+                      >
+                        <TrendingUp className="h-4 w-4 text-green-500 opacity-60 group-hover:opacity-100" />
+                        
+                        <div className="flex-1">
+                          <div className="font-semibold text-white group-hover:text-green-400 transition-colors">
+                            {stock.name}
+                          </div>
+                          <div className="text-xs text-gray-500 group-hover:text-gray-400">
+                            {stock.symbol} • {stock.exchange} • {stock.type}
+                          </div>
+                        </div>
+
+                        <div className="ml-auto flex items-center gap-3">
+                          <span className="inline-block rounded-full bg-green-500/20 px-2.5 py-1 text-xs font-bold text-green-400 border border-green-500/40">
+                            {stock.symbol}
+                          </span>
+
+                          <button
+                            onClick={(e) => toggleWatchlist(e, stock.symbol)}
+                            disabled={isLoading}
+                            className="flex-shrink-0 transition-all duration-300"
+                            title={isInWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+                          >
+                            {isLoading ? (
+                              <Loader2 className="h-5 w-5 text-green-500 animate-spin" />
+                            ) : null}
+                          </button>
+                        </div>
+                      </Link>
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           )}
