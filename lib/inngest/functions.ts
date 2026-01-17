@@ -1,6 +1,6 @@
 import {inngest} from "@/lib/inngest/client";
 import { NEWS_SUMMARY_EMAIL_PROMPT, PERSONALIZED_WELCOME_EMAIL_PROMPT } from "./prompts";
-import { sendWelcomeEmail } from "../nodemailer";
+import { sendWelcomeEmail, sendNewsSummaryEmail } from "../nodemailer";
 import { getAllUsersForNewsEmail } from "../actions/users.actions";
 import { getWatchlistSymbolsByEmail } from "../actions/watchlist.actions";
 import { getNews } from "../actions/finnhub.actions";
@@ -50,9 +50,12 @@ export const sendSignUpEmail = inngest.createFunction(
 
 export const sendDailyNewsSummary = inngest.createFunction(
     {id : 'daily-news-summary'},
-    [{event: 'app/send.daily.news'}, {cron: '0 12 * * *'}],
+    [{event: 'app/send.daily.news'}, {cron: '0 9 * * *'}],
     async ({step}) => {
         const users = await step.run('get-all-users', getAllUsersForNewsEmail) as UserForNewsEmail[];
+        
+        console.log(`[daily-news] Found ${users?.length || 0} users for news email`);
+        
         if(!users || users.length === 0) return {success : false, message : 'No users Found for news Email'}
 
         // step 2 send the personalised news to the users
@@ -94,20 +97,28 @@ export const sendDailyNewsSummary = inngest.createFunction(
 
                 userNewsSummaries.push({ user, newsContent });
             } catch (e) {
-                console.error('Failed to summarize news for : ', user.email);
+                console.error('Failed to summarize news for : ', user.email, e);
                 userNewsSummaries.push({ user, newsContent: null });
             }
         }
 
         // Send news emails to all users
         await step.run('send-news-emails', async () => {
+            const today = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
             for (const { user, newsContent } of userNewsSummaries) {
                 try {
-                    await sendWelcomeEmail({ 
+                    await sendNewsSummaryEmail({ 
                         email: user.email, 
-                        name: user.name, 
-                        intro: newsContent || 'No market news available today.' 
+                        date: today,
+                        newsContent: newsContent || 'No market news available today.' 
                     });
+                    console.log(`[daily-news] Sent email to ${user.email}`);
                 } catch (e) {
                     console.error('Failed to send news email to:', user.email, e);
                 }
