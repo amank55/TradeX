@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { auth } from '../better-auth/auth';
+import { getStocksDetails } from './finnhub.actions';
 
 export async function getWatchlistSymbolsByEmail(email: string): Promise<string[]> {
   if (!email) return [];
@@ -42,7 +43,7 @@ export const addToWatchlist = async (symbol: string, company: string) => {
     const existingItem = await Watchlist.findOne({
       userId: session.user.id,
       symbol: symbol.toUpperCase(),
-    });
+    }).lean();
 
     if (existingItem) {
       return { success: false, error: 'Stock already in watchlist' };
@@ -52,7 +53,7 @@ export const addToWatchlist = async (symbol: string, company: string) => {
     const newItem = new Watchlist({
       userId: session.user.id,
       symbol: symbol.toUpperCase(),
-      company: company.trim(),
+      company: company?.trim() || symbol.toUpperCase(),
     });
 
     await newItem.save();
@@ -61,7 +62,7 @@ export const addToWatchlist = async (symbol: string, company: string) => {
     return { success: true, message: 'Stock added to watchlist' };
   } catch (error) {
     console.error('Error adding to watchlist:', error);
-    throw new Error('Failed to add stock to watchlist');
+    return { success: false, error: 'Failed to add stock to watchlist' };
   }
 };
 
@@ -73,6 +74,10 @@ export const removeFromWatchlist = async (symbol: string) => {
     });
     if (!session?.user) redirect('/sign-in');
 
+    if (!symbol) {
+      return { success: false, error: 'Invalid symbol' };
+    }
+
     // Remove from watchlist
     await Watchlist.deleteOne({
       userId: session.user.id,
@@ -83,6 +88,97 @@ export const removeFromWatchlist = async (symbol: string) => {
     return { success: true, message: 'Stock removed from watchlist' };
   } catch (error) {
     console.error('Error removing from watchlist:', error);
-    throw new Error('Failed to remove stock from watchlist');
+    return { success: false, error: 'Failed to remove stock from watchlist' };
+  }
+};
+
+// Get user's watchlist
+export const getUserWatchlist = async () => {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    if (!session?.user) redirect('/sign-in');
+
+    const watchlist = await Watchlist.find({ userId: session.user.id })
+      .sort({ addedAt: -1 })
+      .lean();
+
+    return JSON.parse(JSON.stringify(watchlist));
+  } catch (error) {
+    console.error('Error fetching watchlist:', error);
+    throw new Error('Failed to fetch watchlist');
+  }
+};
+
+// Get user's watchlist with stock data
+export const getWatchlistWithData = async () => {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    if (!session?.user) redirect('/sign-in');
+
+    const watchlist = await Watchlist.find({ userId: session.user.id }).sort({ addedAt: -1 }).lean();
+
+    if (watchlist.length === 0) return [];
+
+    const stocksWithData = await Promise.allSettled(
+      watchlist.map(async (item) => {
+        try {
+          const stockData = await getStocksDetails(item.symbol);
+
+          if (!stockData) {
+            console.warn(`Failed to fetch data for ${item.symbol}`);
+            return {
+              company: item.company || item.symbol,
+              symbol: item.symbol,
+              currentPrice: null,
+              priceFormatted: '—',
+              changeFormatted: '—',
+              changePercent: 0,
+              marketCap: '—',
+              peRatio: '—',
+            };
+          }
+
+          return {
+            company: stockData.company,
+            symbol: stockData.symbol,
+            currentPrice: stockData.currentPrice,
+            priceFormatted: stockData.priceFormatted,
+            changeFormatted: stockData.changeFormatted,
+            changePercent: stockData.changePercent,
+            marketCap: stockData.marketCapFormatted,
+            peRatio: stockData.peRatio,
+          };
+        } catch (error) {
+          console.warn(`Error fetching data for ${item.symbol}:`, error);
+          // Return fallback data instead of throwing
+          return {
+            company: item.company || item.symbol,
+            symbol: item.symbol,
+            currentPrice: null,
+            priceFormatted: '—',
+            changeFormatted: '—',
+            changePercent: 0,
+            marketCap: '—',
+            peRatio: '—',
+          };
+        }
+      })
+    );
+
+    // Filter out rejected promises and extract values from fulfilled ones
+    const results = stocksWithData
+      .filter((result) => result.status === 'fulfilled')
+      .map((result) => (result.status === 'fulfilled' ? result.value : null))
+      .filter(Boolean);
+
+    return JSON.parse(JSON.stringify(results));
+  } catch (error) {
+    console.error('Error loading watchlist:', error);
+    // Return empty array instead of throwing to show empty state gracefully
+    return [];
   }
 };

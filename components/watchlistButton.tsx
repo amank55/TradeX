@@ -30,19 +30,35 @@ const WatchlistButton = ({
 
   // Handle adding/removing stocks from watchlist
   const toggleWatchlist = async () => {
-    const result = added
-      ? await removeFromWatchlist(symbol)
-      : await addToWatchlist(symbol, company);
+    try {
+      const result = added
+        ? await removeFromWatchlist(symbol)
+        : await addToWatchlist(symbol, company);
 
-    if (result.success) {
-      toast.success(added ? 'Removed from Watchlist' : 'Added to Watchlist', {
-        description: `${company} ${
-          added ? 'removed from' : 'added to'
-        } your watchlist`,
+      if (result?.success) {
+        toast.success(added ? 'Removed from Watchlist' : 'Added to Watchlist', {
+          description: `${company} ${
+            added ? 'removed from' : 'added to'
+          } your watchlist`,
+        });
+
+        // Notify parent component of watchlist change for state synchronization
+        onWatchlistChange?.(symbol, !added);
+      } else {
+        // Handle error response
+        toast.error(result?.error || 'An error occurred', {
+          description: 'Please try again',
+        });
+        // Revert optimistic update on error
+        setAdded(added);
+      }
+    } catch (error) {
+      console.error('Watchlist toggle error:', error);
+      toast.error('Failed to update watchlist', {
+        description: 'Please try again',
       });
-
-      // Notify parent component of watchlist change for state synchronization
-      onWatchlistChange?.(symbol, !added);
+      // Revert optimistic update on error
+      setAdded(added);
     }
   };
 

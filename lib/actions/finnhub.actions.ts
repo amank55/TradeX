@@ -197,7 +197,7 @@ export const getStocksDetails = cache(async (symbol: string) => {
   const cleanSymbol = symbol.trim().toUpperCase();
 
   try {
-    const [quote, profile, financials] = await Promise.all([
+    const results = await Promise.allSettled([
       fetchJSON(
         // Price data - no caching for accuracy
         `${FINNHUB_BASE_URL}/quote?symbol=${cleanSymbol}&token=${NEXT_PUBLIC_FINNHUB_API_KEY}`
@@ -214,14 +214,21 @@ export const getStocksDetails = cache(async (symbol: string) => {
       ),
     ]);
 
+    // Extract values, handling rejections
+    const quote = results[0].status === 'fulfilled' ? results[0].value : null;
+    const profile = results[1].status === 'fulfilled' ? results[1].value : null;
+    const financials = results[2].status === 'fulfilled' ? results[2].value : null;
+
     // Type cast the responses
     const quoteData = quote as QuoteData;
     const profileData = profile as ProfileData;
     const financialsData = financials as FinancialsData;
 
     // Check if we got valid quote and profile data
-    if (!quoteData?.c || !profileData?.name)
-      throw new Error('Invalid stock data received from API');
+    if (!quoteData || !profileData || !quoteData?.c || !profileData?.name) {
+      console.warn(`Invalid stock data for ${cleanSymbol}: quote=${!!quoteData}, profile=${!!profileData}`);
+      return null;
+    }
 
     const changePercent = quoteData.dp || 0;
     const peRatio = financialsData?.metric?.peNormalizedAnnual || null;
@@ -240,6 +247,7 @@ export const getStocksDetails = cache(async (symbol: string) => {
     };
   } catch (error) {
     console.error(`Error fetching details for ${cleanSymbol}:`, error);
-    throw new Error('Failed to fetch stock details');
+    // Return null instead of throwing to allow graceful degradation
+    return null;
   }
 });
