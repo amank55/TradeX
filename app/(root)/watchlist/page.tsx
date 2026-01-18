@@ -1,12 +1,13 @@
 import { Star, Plus } from 'lucide-react';
-import { searchStocks } from '@/lib/actions/finnhub.actions';
+import { searchStocks, getNews } from '@/lib/actions/finnhub.actions';
 import SearchCommand from '@/components/searchCommand';
 import { getWatchlistWithData } from '@/lib/actions/watchlist.actions';
 import { WatchlistTable } from '@/components/watchlistTable';
-
+import { NewsCard } from '@/components/newsCard';
 const Watchlist = async () => {
   let watchlist: any[] = [];
   let initialStocks: any[] = [];
+  let news: any[] = [];
   
   try {
     watchlist = await getWatchlistWithData();
@@ -20,6 +21,13 @@ const Watchlist = async () => {
   } catch (error) {
     console.error('Error loading initial stocks:', error);
     initialStocks = [];
+  }
+
+  try {
+    news = await getNews();
+  } catch (error) {
+    console.error('Error loading news:', error);
+    news = [];
   }
 
   // Empty state
@@ -111,9 +119,28 @@ const Watchlist = async () => {
         </div>
 
         {/* Table Section */}
-        <div>
+        <div className='mb-12'>
           <WatchlistTable watchlist={watchlist} />
         </div>
+
+        {/* News Section */}
+        {news.length > 0 && (
+          <div className='mt-16'>
+            <div className='mb-10'>
+              <h2 className='text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-3'>
+                <div className='h-1 w-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full'></div>
+                Market News
+              </h2>
+              <p className='text-gray-400 text-base ml-11'>Latest insights and updates from the market</p>
+            </div>
+            
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+              {news.map((article, index) => (
+                <NewsCard key={`${article.headline}-${index}`} article={article} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

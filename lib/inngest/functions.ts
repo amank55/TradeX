@@ -3,7 +3,10 @@ import { NEWS_SUMMARY_EMAIL_PROMPT, PERSONALIZED_WELCOME_EMAIL_PROMPT } from "./
 import { sendWelcomeEmail, sendNewsSummaryEmail } from "../nodemailer";
 import { getAllUsersForNewsEmail } from "../actions/users.actions";
 import { getWatchlistSymbolsByEmail } from "../actions/watchlist.actions";
-import { getNews } from "../actions/finnhub.actions";
+import { getNews, getStocksDetails } from "../actions/finnhub.actions";
+import { sendPriceAlertEmail } from "../nodemailer/priceAlertEmail";
+import { connectToDatabase } from "@/database/mongoose";
+import { Alert } from "@/database/models/alert.model";
 
 
 export const sendSignUpEmail = inngest.createFunction(
@@ -127,6 +130,123 @@ export const sendDailyNewsSummary = inngest.createFunction(
         return {
             success: true,
             message: `News emails sent to ${userNewsSummaries.length} users`
+        }
+    }
+)
+
+export const checkPriceAlerts = inngest.createFunction(
+    { id: 'check-price-alerts' },
+    { cron: 'TZ=Asia/Kolkata */5 * * * *' }, // Every 5 minutes
+    async ({ step }) => {
+        try {
+            await connectToDatabase();
+
+            // Fetch all active alerts
+            const activeAlerts = await step.run('fetch-active-alerts', async () => {
+                return await Alert.find({ isActive: true }).lean();
+            });
+
+            console.log(`[check-price-alerts] Found ${activeAlerts.length} active alerts`);
+
+            if (activeAlerts.length === 0) {
+                return { success: true, message: 'No active alerts to check' };
+            }
+
+            // Get all unique symbols and their current prices
+            const symbols = [...new Set(activeAlerts.map(a => a.symbol))];
+            const stockPrices: Record<string, number> = {};
+
+            await step.run('fetch-stock-prices', async () => {
+                for (const symbol of symbols) {
+                    try {
+                        const stockData = await getStocksDetails(symbol);
+                        if (stockData?.currentPrice) {
+                            stockPrices[symbol] = stockData.currentPrice;
+                        }
+                    } catch (error) {
+                        console.error(`Failed to fetch price for ${symbol}:`, error);
+                    }
+                }
+            });
+
+            // Check each alert and send emails if triggered
+            const triggeredAlerts: typeof activeAlerts = [];
+
+            await step.run('check-alert-conditions', async () => {
+                for (const alert of activeAlerts) {
+                    const currentPrice = stockPrices[alert.symbol];
+                    if (!currentPrice) continue;
+
+                    let isTriggered = false;
+                    let alertStatus: 'Price Above Reached' | 'Price Below Hit' = 'Price Above Reached';
+
+                    if (alert.condition === 'greater-than') {
+                        isTriggered = currentPrice >= alert.thresholdValue;
+                        alertStatus = 'Price Above Reached';
+                    } else if (alert.condition === 'less-than') {
+                        isTriggered = currentPrice <= alert.thresholdValue;
+                        alertStatus = 'Price Below Hit';
+                    } else if (alert.condition === 'equals') {
+                        isTriggered = Math.abs(currentPrice - alert.thresholdValue) < 0.01;
+                        alertStatus = 'Price Above Reached';
+                    }
+
+                    if (isTriggered) {
+                        triggeredAlerts.push({ ...alert, alertStatus });
+                    }
+                }
+            });
+
+            // Send alert emails
+            await step.run('send-alert-emails', async () => {
+                for (const alert of triggeredAlerts) {
+                    try {
+                        // Get user email
+                        const mongoose = await connectToDatabase();
+                        const db = mongoose.connection.db;
+                        const user = await db.collection('user').findOne({ id: alert.userId });
+
+                        if (!user?.email) {
+                            console.error(`User not found for alert ${alert._id}`);
+                            continue;
+                        }
+
+                        const currentPrice = stockPrices[alert.symbol] || 0;
+
+                        await sendPriceAlertEmail({
+                            userEmail: user.email,
+                            alertName: alert.alertName,
+                            symbol: alert.symbol,
+                            companyName: alert.company,
+                            currentPrice,
+                            targetPrice: alert.thresholdValue,
+                            condition: alert.condition,
+                            alertStatus: (alert as any).alertStatus || 'Price Above Reached',
+                        });
+
+                        console.log(`[check-price-alerts] Sent alert email for ${alert.symbol} to ${user.email}`);
+
+                        // Update alert based on frequency
+                        if (alert.frequency === 'once') {
+                            // Deactivate the alert after sending
+                            await Alert.updateOne(
+                                { _id: alert._id },
+                                { isActive: false }
+                            );
+                        }
+                    } catch (error) {
+                        console.error(`Failed to send alert email:`, error);
+                    }
+                }
+            });
+
+            return {
+                success: true,
+                message: `Checked ${activeAlerts.length} alerts, triggered ${triggeredAlerts.length} emails`,
+            };
+        } catch (error) {
+            console.error('[check-price-alerts] Error:', error);
+            throw error;
         }
     }
 )

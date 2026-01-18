@@ -14,6 +14,8 @@ import WatchlistButton from './watchlistButton';
 import { useRouter } from 'next/navigation';
 import { cn, getChangeColorClass } from '@/lib/utils';
 import { TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { PriceAlertDialog } from './priceAlertDialog';
 
 interface WatchlistTableProps {
   watchlist: any[];
@@ -21,6 +23,8 @@ interface WatchlistTableProps {
 
 export function WatchlistTable({ watchlist }: WatchlistTableProps) {
   const router = useRouter();
+  const [alertDialogOpen, setAlertDialogOpen] = useState(false);
+  const [selectedStock, setSelectedStock] = useState<{ symbol: string; company: string } | null>(null);
 
   return (
     <div className='w-full'>
@@ -90,7 +94,11 @@ export function WatchlistTable({ watchlist }: WatchlistTableProps) {
                     {/* Price */}
                     <TableCell className='px-6 py-4 text-left'>
                       <span className='font-bold text-white text-lg'>
-                        {item.priceFormatted || item.price ? `$${typeof item.price === 'number' ? item.price.toFixed(2) : '—'}` : '—'}
+                        {item.priceFormatted && item.priceFormatted !== '—' 
+                          ? item.priceFormatted 
+                          : (typeof item.currentPrice === 'number' 
+                              ? `$${item.currentPrice.toFixed(2)}` 
+                              : '—')}
                       </span>
                     </TableCell>
 
@@ -132,9 +140,10 @@ export function WatchlistTable({ watchlist }: WatchlistTableProps) {
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          console.log('Alert clicked for:', item.symbol);
+                          setSelectedStock({ symbol: item.symbol || '', company: item.company || '' });
+                          setAlertDialogOpen(true);
                         }}
-                        className='flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-700/40 hover:bg-orange-500/30 border border-gray-600/40 hover:border-orange-500/40 text-gray-400 hover:text-orange-400 font-medium text-sm transition-all duration-200 group-hover:scale-105 cursor-pointer'
+                        className='flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 border border-blue-500/50 hover:border-blue-400 text-white font-semibold text-sm transition-all duration-200 group-hover:scale-110 cursor-pointer shadow-lg hover:shadow-blue-500/50 active:scale-95'
                       >
                         <AlertCircle className='h-4 w-4' />
                         Alert
@@ -164,6 +173,19 @@ export function WatchlistTable({ watchlist }: WatchlistTableProps) {
           </TableBody>
         </Table>
       </div>
+
+      {/* Price Alert Dialog */}
+      {selectedStock && (
+        <PriceAlertDialog
+          isOpen={alertDialogOpen}
+          onClose={() => {
+            setAlertDialogOpen(false);
+            setSelectedStock(null);
+          }}
+          symbol={selectedStock.symbol}
+          company={selectedStock.company}
+        />
+      )}
     </div>
   );
 }
