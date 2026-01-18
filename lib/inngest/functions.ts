@@ -52,31 +52,30 @@ export const sendDailyNewsSummary = inngest.createFunction(
     {id : 'daily-news-summary'},
     [{event: 'app/send.daily.news'}, {cron: 'TZ=Asia/Kolkata 0 9 * * *'}],
     async ({step}) => {
+        console.log(`[daily-news] Cron triggered at ${new Date().toISOString()}`);
         const users = await step.run('get-all-users', getAllUsersForNewsEmail) as UserForNewsEmail[];
         
         console.log(`[daily-news] Found ${users?.length || 0} users for news email`);
         
-        if(!users || users.length === 0) return {success : false, message : 'No users Found for news Email'}
+        if(!users || users.length === 0) {
+            console.log('[daily-news] No users found, returning');
+            return {success : false, message : 'No users Found for news Email'}
+        }
 
-        // step 2 send the personalised news to the users
-        const results = await step.run('fetch-user-news', async () => {
-            const perUser: Array<{ user: UserForNewsEmail; articles: MarketNewsArticle[] }> = [];
-            for (const user of users) {
-                try {
-                    const symbols = await getWatchlistSymbolsByEmail(user.email);
-                    let articles = await getNews(symbols);
-                    articles = (articles || []).slice(0, 6);
-                    if (!articles || articles.length === 0) {
-                        articles = await getNews();
-                        articles = (articles || []).slice(0, 6);
-                    }
-                    perUser.push({ user, articles });
-                } catch (e) {
-                    console.error('daily-news: error preparing user news', user.email, e);
-                    perUser.push({ user, articles: [] });
-                }
+        // Fetch general market news for all users
+        const results = await step.run('fetch-news', async () => {
+            try {
+                console.log('[daily-news] Fetching general market news for all users');
+                let articles = await getNews();
+                articles = (articles || []).slice(0, 6);
+                console.log(`[daily-news] Got ${articles?.length || 0} articles`);
+                
+                // Return same news for all users
+                return users.map(user => ({ user, articles }));
+            } catch (e) {
+                console.error('daily-news: error fetching news', e);
+                return users.map(user => ({ user, articles: [] }));
             }
-            return perUser;
         });
 
         const userNewsSummaries: { user: UserForNewsEmail; newsContent: string | null }[] = [];
