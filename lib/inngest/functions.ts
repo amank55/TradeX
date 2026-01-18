@@ -204,6 +204,12 @@ export const checkPriceAlerts = inngest.createFunction(
                         // Get user email
                         const mongoose = await connectToDatabase();
                         const db = mongoose.connection.db;
+                        
+                        if (!db) {
+                            console.error('Database connection not available');
+                            continue;
+                        }
+                        
                         const user = await db.collection('user').findOne({ id: alert.userId });
 
                         if (!user?.email) {
