@@ -5,7 +5,7 @@
     </a>
   <br />
 
-  <div>
+  <div classname = "mt-2">
     <img src="https://img.shields.io/badge/-Next.js-black?style=for-the-badge&logo=next.js&logoColor=white"/>
     <img src="https://img.shields.io/badge/-Auth-black?style=for-the-badge&logo=auth0&logoColor=white"/>
     <img src="https://img.shields.io/badge/-Shadcn-black?style=for-the-badge&logo=shadcnui&logoColor=white"/>
@@ -16,7 +16,7 @@
     <img src="https://img.shields.io/badge/-TypeScript-black?style=for-the-badge&logo=typescript&logoColor=white"/>
   </div>
 
-  <h3 align="center">Your Project Name — Short Catchy Tagline</h3>
+  <h3 align="center">Signalist-A stock broking and management app</h3>
 
   <div align="center">
     A modern full-stack application built with Next.js, scalable workflows, and a clean UI.
