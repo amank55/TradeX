@@ -1,7 +1,7 @@
 <div align="center">
   <br />
     <a href="https://your-demo-link.com" target="_blank">
-      <img src="public/readme/hero.webp" alt="Project Banner">
+      <img src="public/assets/images/dashboard-preview.png" alt="Project Banner">
     </a>
   <br />
 
@@ -38,7 +38,7 @@
 
 ## ✨ Introduction
 
-**Your Project Name** is a modern, full-stack web application designed to solve a real-world problem efficiently.  
+Signalist  is a modern, full-stack web application designed to solve a real-world problem efficiently.  
 It focuses on performance, scalability, and developer experience using cutting-edge technologies and clean architecture.
 
 This project is ideal for:
